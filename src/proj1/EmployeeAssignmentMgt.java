@@ -44,24 +44,25 @@ public class EmployeeAssignmentMgt extends javax.swing.JFrame {
     }
 
     private void loadEmployeeIds() {
-        cmbEmployeeId.removeAllItems();
-        cmbEmployeeId.addItem("Select Employee");
+    cmbEmployeeId.removeAllItems();
+    cmbEmployeeId.addItem("Select Employee");
 
-        try (Connection conn = DbConnection.getConnection()) {
-            String sql = "SELECT employee_id, name FROM employees_login ORDER BY employee_id";
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(sql);
+    try (Connection conn = DbConnection.getConnection()) {
+        String sql = "SELECT employee_id, first_name, last_name FROM employees_login ORDER BY employee_id";
+        Statement st = conn.createStatement();
+        ResultSet rs = st.executeQuery(sql);
 
-            while (rs.next()) {
-                int empId = rs.getInt("employee_id");
-                String name = rs.getString("name");
-                cmbEmployeeId.addItem(empId + " - " + name);
-            }
-
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Error loading employee IDs: " + ex.getMessage());
+        while (rs.next()) {
+            int empId = rs.getInt("employee_id");
+            String firstname = rs.getString("first_name");
+            String lastname = rs.getString("first_name");
+            cmbEmployeeId.addItem(empId + " - " + firstname + " - " + lastname);
         }
+
+    } catch (Exception ex) {
+        JOptionPane.showMessageDialog(this, "Error loading employee IDs: " + ex.getMessage());
     }
+}
 
     private void loadBranchIds() {
         cmbBranchId.removeAllItems();
