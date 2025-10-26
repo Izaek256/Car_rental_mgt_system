@@ -21,6 +21,28 @@ public class CustomerManagement extends javax.swing.JFrame {
         setTitle("Customer Management - Car Rental System");
         setSize(900, 900);
         setLocationRelativeTo(null);
+        loadCustomers();
+    }
+
+    private void loadCustomers() {
+        try {
+            // Use your existing connection method
+            Connection conn = DbConnection.getConnection();
+
+            String sql = "SELECT customer_id, first_name, last_name FROM customers ORDER BY customer_id ASC";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            CustomerCmbBox.removeAllItems();
+            CustomerCmbBox.addItem("-- Select Customer ID --");
+
+            while (rs.next()) {
+                CustomerCmbBox.addItem(rs.getInt("customer_id") + " - " + rs.getString("first_name") + " " + rs.getString("last_name"));
+            }
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error loading customer IDs: " + e.getMessage());
+        }
     }
 
     /**
@@ -44,7 +66,6 @@ public class CustomerManagement extends javax.swing.JFrame {
         btnClear = new javax.swing.JButton();
         btnFind = new javax.swing.JButton();
         txtLastnameField = new javax.swing.JTextField();
-        txtCustomer_IDField = new javax.swing.JTextField();
         txtAddressField = new javax.swing.JTextField();
         txtEmailField = new javax.swing.JTextField();
         txtPhonenumberField = new javax.swing.JTextField();
@@ -52,6 +73,7 @@ public class CustomerManagement extends javax.swing.JFrame {
         LblLicenseNumber = new javax.swing.JLabel();
         txtLicenseNumber = new javax.swing.JTextField();
         btnBack = new javax.swing.JButton();
+        CustomerCmbBox = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -111,6 +133,8 @@ public class CustomerManagement extends javax.swing.JFrame {
             }
         });
 
+        CustomerCmbBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -128,16 +152,6 @@ public class CustomerManagement extends javax.swing.JFrame {
                     .addComponent(LblLicenseNumber, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(137, 137, 137)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtFirstnameField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
-                            .addComponent(txtCustomer_IDField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
-                            .addComponent(txtLastnameField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
-                            .addComponent(txtEmailField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
-                            .addComponent(txtPhonenumberField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
-                            .addComponent(txtAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
-                            .addComponent(txtLicenseNumber)))
-                    .addGroup(layout.createSequentialGroup()
                         .addGap(25, 25, 25)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(btnBack)
@@ -148,7 +162,17 @@ public class CustomerManagement extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(btnClear)
                         .addGap(49, 49, 49)
-                        .addComponent(btnFind)))
+                        .addComponent(btnFind))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(137, 137, 137)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(txtFirstnameField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                            .addComponent(txtLastnameField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                            .addComponent(txtEmailField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                            .addComponent(txtPhonenumberField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                            .addComponent(txtAddressField, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
+                            .addComponent(txtLicenseNumber)
+                            .addComponent(CustomerCmbBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap(100, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -157,7 +181,7 @@ public class CustomerManagement extends javax.swing.JFrame {
                 .addGap(46, 46, 46)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(LblcustomerId)
-                    .addComponent(txtCustomer_IDField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(CustomerCmbBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(txtFirstnameField)
@@ -198,28 +222,25 @@ public class CustomerManagement extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        // TODO add your handling code here:
-
         try (Connection conn = DbConnection.getConnection()) {
             String sql = "UPDATE Customers SET first_name=?, last_name=?, email=?, phone_number=?, address=? WHERE customer_id=?";
             PreparedStatement pst = conn.prepareStatement(sql);
+
             pst.setString(1, txtFirstnameField.getText());
             pst.setString(2, txtLastnameField.getText());
             pst.setString(3, txtEmailField.getText());
             pst.setString(4, txtPhonenumberField.getText());
             pst.setString(5, txtAddressField.getText());
-            pst.setInt(6, Integer.parseInt(txtCustomer_IDField.getText()));
+
+            pst.setInt(6, Integer.parseInt(((String) CustomerCmbBox.getSelectedItem()).split("-")[0].trim()));
             pst.executeUpdate();
-
             JOptionPane.showMessageDialog(this, "Customer Updated!");
-
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error updating customer: " + ex.getMessage());
         }
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        // TODO add your handling code here:
 
         try (Connection conn = DbConnection.getConnection()) {
             String sql = "INSERT INTO Customers(first_name, last_name, email, phone_number, address, license_number) VALUES(?, ?, ?, ?, ?, ?)";
@@ -240,27 +261,42 @@ public class CustomerManagement extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        // TODO add your handling code here:
-
         try (Connection conn = DbConnection.getConnection()) {
+            String selectedItem = (String) CustomerCmbBox.getSelectedItem();
+
+            if (selectedItem == null || selectedItem.equals("-- Select Customer --")) {
+                JOptionPane.showMessageDialog(this, "Please select a customer to delete.");
+                return;
+            }
+            int customerId = Integer.parseInt(selectedItem.split(" - ")[0].trim());
             String sql = "DELETE FROM Customers WHERE customer_id=?";
             PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setInt(1, Integer.parseInt(txtCustomer_IDField.getText()));
+            pst.setInt(1, customerId);
             pst.executeUpdate();
-
-            JOptionPane.showMessageDialog(this, "Customer Deleted!");
+            JOptionPane.showMessageDialog(this, "Customer deleted successfully!");
+            loadCustomers();
+            txtFirstnameField.setText("");
+            txtLastnameField.setText("");
+            txtEmailField.setText("");
+            txtPhonenumberField.setText("");
+            txtAddressField.setText("");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error deleting customer: " + ex.getMessage());
         }
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
-        // TODO add your handling code here:
-
         try (Connection conn = DbConnection.getConnection()) {
-            String sql = "SELECT * FROM Customers WHERE customer_id=?";
+            String selectedItem = (String) CustomerCmbBox.getSelectedItem();
+
+            if (selectedItem == null || selectedItem.equals("-- Select Customer --")) {
+                JOptionPane.showMessageDialog(this, "Please select a customer.");
+                return;
+            }
+            int customerId = Integer.parseInt(selectedItem.split(" - ")[0].trim());
+            String sql = "SELECT * FROM Customers WHERE customer_id = ?";
             PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setInt(1, Integer.parseInt(txtCustomer_IDField.getText()));
+            pst.setInt(1, customerId);
             ResultSet rs = pst.executeQuery();
 
             if (rs.next()) {
@@ -279,7 +315,7 @@ public class CustomerManagement extends javax.swing.JFrame {
 
     private void btnClearActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearActionPerformed
         // TODO add your handling code here:
-        txtCustomer_IDField.setText("");
+        loadCustomers();
         txtFirstnameField.setText("");
         txtLastnameField.setText("");
         txtEmailField.setText("");
@@ -329,6 +365,7 @@ public class CustomerManagement extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> CustomerCmbBox;
     private javax.swing.JLabel LblAddress;
     private javax.swing.JLabel LblEmail;
     private javax.swing.JLabel LblLastName;
@@ -343,11 +380,11 @@ public class CustomerManagement extends javax.swing.JFrame {
     private javax.swing.JButton btnFind;
     private javax.swing.JButton btnUpdate;
     private javax.swing.JTextField txtAddressField;
-    private javax.swing.JTextField txtCustomer_IDField;
     private javax.swing.JTextField txtEmailField;
     private javax.swing.JTextField txtFirstnameField;
     private javax.swing.JTextField txtLastnameField;
     private javax.swing.JTextField txtLicenseNumber;
     private javax.swing.JTextField txtPhonenumberField;
     // End of variables declaration//GEN-END:variables
+
 }

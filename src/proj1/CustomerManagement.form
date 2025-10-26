@@ -36,18 +36,6 @@
                   <Component id="LblLicenseNumber" alignment="0" max="32767" attributes="0"/>
               </Group>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <EmptySpace min="-2" pref="137" max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="txtFirstnameField" pref="217" max="32767" attributes="0"/>
-                          <Component id="txtCustomer_IDField" pref="217" max="32767" attributes="0"/>
-                          <Component id="txtLastnameField" alignment="0" pref="217" max="32767" attributes="0"/>
-                          <Component id="txtEmailField" alignment="0" pref="217" max="32767" attributes="0"/>
-                          <Component id="txtPhonenumberField" alignment="0" pref="217" max="32767" attributes="0"/>
-                          <Component id="txtAddressField" pref="217" max="32767" attributes="0"/>
-                          <Component id="txtLicenseNumber" alignment="0" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace min="-2" pref="25" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="1" attributes="0">
@@ -63,6 +51,18 @@
                       <EmptySpace min="-2" pref="49" max="-2" attributes="0"/>
                       <Component id="btnFind" min="-2" max="-2" attributes="0"/>
                   </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <EmptySpace min="-2" pref="137" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                          <Component id="txtFirstnameField" pref="217" max="32767" attributes="0"/>
+                          <Component id="txtLastnameField" alignment="0" pref="217" max="32767" attributes="0"/>
+                          <Component id="txtEmailField" alignment="0" pref="217" max="32767" attributes="0"/>
+                          <Component id="txtPhonenumberField" alignment="0" pref="217" max="32767" attributes="0"/>
+                          <Component id="txtAddressField" pref="217" max="32767" attributes="0"/>
+                          <Component id="txtLicenseNumber" alignment="0" max="32767" attributes="0"/>
+                          <Component id="CustomerCmbBox" alignment="0" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
               </Group>
               <EmptySpace pref="100" max="32767" attributes="0"/>
           </Group>
@@ -74,7 +74,7 @@
               <EmptySpace min="-2" pref="46" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="LblcustomerId" min="-2" max="-2" attributes="0"/>
-                  <Component id="txtCustomer_IDField" min="-2" max="-2" attributes="0"/>
+                  <Component id="CustomerCmbBox" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace min="-2" pref="31" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -194,8 +194,6 @@
     </Component>
     <Component class="javax.swing.JTextField" name="txtLastnameField">
     </Component>
-    <Component class="javax.swing.JTextField" name="txtCustomer_IDField">
-    </Component>
     <Component class="javax.swing.JTextField" name="txtAddressField">
     </Component>
     <Component class="javax.swing.JTextField" name="txtEmailField">
@@ -218,6 +216,21 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnBackActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="CustomerCmbBox">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="4">
+            <StringItem index="0" value="Item 1"/>
+            <StringItem index="1" value="Item 2"/>
+            <StringItem index="2" value="Item 3"/>
+            <StringItem index="3" value="Item 4"/>
+          </StringArray>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>
