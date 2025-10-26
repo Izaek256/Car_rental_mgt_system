@@ -5,7 +5,6 @@
 package proj1;
 
 import java.sql.*;
-import javax.swing.table.*;
 import javax.swing.*;
 
 /**
@@ -13,45 +12,34 @@ import javax.swing.*;
  * @author Izaek Kisuule
  */
 public class VehicleMgt extends javax.swing.JFrame {
-
-    /**
-     * Creates new form VehicleMgt
-     */
-//    method to load cars from db
-//    private void loadCars() {
-//        DefaultTableModel model = new DefaultTableModel(new String[]{"Car ID", "Make", "Model", "Year", "Plate", "Rate", "Status", "Color", "Mileage"}, 0);
-//
-//        try (Connection conn = DbConnection.getConnection()) {
-//            String sql = "SELECT * FROM Cars";
-//            Statement st = conn.createStatement();
-//            ResultSet rs = st.executeQuery(sql);
-//
-//            if (rs.next()) {
-//                model.addRow(new Object[]{
-//                    rs.getInt("car_id"),
-//                    rs.getString("make"),
-//                    rs.getString("model"),
-//                    rs.getInt("year"),
-//                    rs.getString("license_plate"),
-//                    rs.getDouble("rental_rate"),
-//                    rs.getString("status"),
-//                    rs.getString("color"),
-//                    rs.getInt("mileage")
-//                });
-//            }
-//            tblCars.setModel(model);
-//
-//        } catch (Exception ex) {
-//            JOptionPane.showMessageDialog(this, "Error loading cars " + ex.getMessage());
-//        }
-//
-//    }
+    
     public VehicleMgt() {
         initComponents();
         setSize(900, 900);
-//        loadCars();
+        loadCarIds();
         setTitle("Car Management - Car Rental System");
         setLocationRelativeTo(null);
+    }
+    
+    private void loadCarIds() {
+        ComboBoxCarId.removeAllItems();
+        ComboBoxCarId.addItem("Select Car");
+        
+        try (Connection conn = DbConnection.getConnection()) {
+            String sql = "SELECT car_id, make, model FROM Cars ORDER BY car_id";
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(sql);
+            
+            while (rs.next()) {
+                int carId = rs.getInt("car_id");
+                String make = rs.getString("make");
+                String model = rs.getString("model");
+                ComboBoxCarId.addItem(carId + " - " + make + " " + model);
+            }
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error loading car IDs: " + ex.getMessage());
+        }
     }
 
     /**
@@ -87,8 +75,8 @@ public class VehicleMgt extends javax.swing.JFrame {
         txtMile = new javax.swing.JTextField();
         cmbStatus = new javax.swing.JComboBox<>();
         LblCarID = new javax.swing.JLabel();
-        txtCarId = new javax.swing.JTextField();
         btnBack = new javax.swing.JButton();
+        ComboBoxCarId = new javax.swing.JComboBox<>();
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -156,6 +144,12 @@ public class VehicleMgt extends javax.swing.JFrame {
 
         LblMake.setText("Make ");
 
+        txtModel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtModelActionPerformed(evt);
+            }
+        });
+
         LblYear.setText("Year");
 
         LblMile.setText("Mileage");
@@ -173,71 +167,75 @@ public class VehicleMgt extends javax.swing.JFrame {
             }
         });
 
+        ComboBoxCarId.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnBack)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(110, 110, 110)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(LblCarID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblPlatenumber, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblModel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblRate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblMake, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblYear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblMile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-                        .addGroup(layout.createSequentialGroup()
-                            .addGap(91, 91, 91)
-                            .addComponent(btnAdd)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                            .addComponent(btnUpdate)
-                            .addGap(16, 16, 16)
-                            .addComponent(btnDelete))))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(80, 80, 80)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(txtModel, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                            .addComponent(txtMake, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                            .addComponent(txtPlate, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                            .addComponent(txtYear, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                            .addComponent(txtRate, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                            .addComponent(cmbStatus, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtColor)
-                            .addComponent(txtMile, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
-                            .addComponent(txtCarId)))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGap(35, 35, 35)
-                        .addComponent(btnClear)
-                        .addGap(18, 18, 18)
-                        .addComponent(btnFind)))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(110, 110, 110)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(LblCarID, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(LblPlatenumber, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(LblModel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(LblRate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(LblStatus, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(LblMake, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(LblYear, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(LblMile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(121, 121, 121)
+                                .addComponent(btnAdd)
+                                .addGap(26, 26, 26)
+                                .addComponent(btnUpdate)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnDelete)))
+                        .addGap(40, 40, 40)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnClear)
+                                .addGap(50, 50, 50)
+                                .addComponent(btnFind)
+                                .addGap(31, 31, 31))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(txtModel, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                                .addComponent(txtMake, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                                .addComponent(txtPlate, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                                .addComponent(txtYear, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                                .addComponent(txtRate, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                                .addComponent(cmbStatus, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(txtColor)
+                                .addComponent(txtMile, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                                .addComponent(ComboBoxCarId, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(287, 287, 287)
+                        .addComponent(btnBack)))
                 .addContainerGap(92, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(29, 29, 29)
+                .addGap(35, 35, 35)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LblCarID)
-                    .addComponent(txtCarId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(LblCarID, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ComboBoxCarId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(30, 30, 30)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(LblMake)
-                    .addComponent(txtMake, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtMake)
+                    .addComponent(LblMake, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(45, 45, 45)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(txtModel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(LblModel))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtModel)
+                    .addComponent(LblModel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(32, 32, 32)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LblPlatenumber)
+                    .addComponent(LblPlatenumber, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtPlate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(28, 28, 28)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -245,44 +243,52 @@ public class VehicleMgt extends javax.swing.JFrame {
                     .addComponent(LblYear, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(28, 28, 28)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LblRate)
+                    .addComponent(LblRate, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtRate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(26, 26, 26)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LblStatus)
+                    .addComponent(LblStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 19, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(txtColor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(1, 1, 1)))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(LblMile, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(LblMile, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtMile, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 18, 18)
+                .addGap(36, 36, 36)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnAdd)
                     .addComponent(btnUpdate)
                     .addComponent(btnDelete)
                     .addComponent(btnClear)
                     .addComponent(btnFind))
-                .addGap(27, 27, 27)
+                .addGap(18, 18, 18)
                 .addComponent(btnBack)
-                .addGap(35, 35, 35))
+                .addContainerGap(18, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
-        // TODO add your handling code here:
-
+        String selected = ComboBoxCarId.getSelectedItem().toString();
+        if (selected.equals("Select Car")) {
+            JOptionPane.showMessageDialog(this, "Please select a car!");
+            return;
+        }
+        
+        int carId = Integer.parseInt(selected.split(" - ")[0]);
+        
         try (Connection conn = DbConnection.getConnection()) {
             String sql = "SELECT * FROM Cars WHERE car_id=?";
             PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setInt(1, Integer.parseInt(txtCarId.getText()));
+            pst.setInt(1, carId);
             ResultSet rs = pst.executeQuery();
-
+            
             if (rs.next()) {
                 txtMake.setText(rs.getString("make"));
                 txtModel.setText(rs.getString("model"));
@@ -306,7 +312,7 @@ public class VehicleMgt extends javax.swing.JFrame {
         if (txtMake.getText().isEmpty() || txtModel.getText().isEmpty() || txtYear.getText().isEmpty() || txtPlate.getText().isEmpty() || txtRate.getText().isEmpty() || txtColor.getText().isEmpty() || cmbStatus.getSelectedItem().equals(false) || txtMile.getText().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Enter all informations in the fields");
         }
-
+        
         try (Connection conn = DbConnection.getConnection()) {
             String sql = "INSERT INTO Cars(make, model, year,license_plate, rental_rate, status, color, mileage) VALUES (?,?,?,?,?,?,?,?)";
             PreparedStatement pst = conn.prepareStatement(sql);
@@ -318,7 +324,7 @@ public class VehicleMgt extends javax.swing.JFrame {
             pst.setString(6, cmbStatus.getSelectedItem().toString());
             pst.setString(7, txtColor.getText());
             pst.setInt(8, Integer.parseInt(txtMile.getText()));
-
+            
             pst.executeUpdate();
             JOptionPane.showMessageDialog(this, "Car Added!");
 //            loadCars();
@@ -330,38 +336,45 @@ public class VehicleMgt extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddActionPerformed
 
     private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        // TODO add your handling code here:
+        String selected = ComboBoxCarId.getSelectedItem().toString();
+        if (selected.equals("Select Car")) {
+            JOptionPane.showMessageDialog(this, "Please select a car!");
+            return;
+        }
+        
+        int carId = Integer.parseInt(selected.split(" - ")[0]);
         
         try (Connection conn = DbConnection.getConnection()) {
-        String sql = "UPDATE Cars SET make=?, model=?, year=?, license_plate=?, rental_rate=?, status=?, color=?, mileage=? WHERE car_id=?";
-        PreparedStatement pst = conn.prepareStatement(sql);
-        pst.setString(1, txtMake.getText());
-        pst.setString(2, txtModel.getText());
-        pst.setInt(3, Integer.parseInt(txtYear.getText()));
-        pst.setString(4, txtPlate.getText());
-        pst.setDouble(5, Double.parseDouble(txtRate.getText()));
-        pst.setString(6, cmbStatus.getSelectedItem().toString());
-        pst.setString(7, txtColor.getText());
-        pst.setInt(8, Integer.parseInt(txtMile.getText()));
-        pst.setInt(9, Integer.parseInt(txtCarId.getText()));
-
-        pst.executeUpdate();
-        JOptionPane.showMessageDialog(this, "Car Updated!");
-        
-        txtColor.setText("");
-        txtMake.setText("");
-        txtMile.setText("");
-        txtModel.setText("");
-        txtPlate.setText("");
-        txtRate.setText("");
-        txtYear.setText("");
-        cmbStatus.setSelectedItem("");
-        txtCarId.requestFocus();
-        txtCarId.setText("");
-        
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Error updating car: " + ex.getMessage());
-    }
+            String sql = "UPDATE Cars SET make=?, model=?, year=?, license_plate=?, rental_rate=?, status=?, color=?, mileage=? WHERE car_id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setString(1, txtMake.getText());
+            pst.setString(2, txtModel.getText());
+            pst.setInt(3, Integer.parseInt(txtYear.getText()));
+            pst.setString(4, txtPlate.getText());
+            pst.setDouble(5, Double.parseDouble(txtRate.getText()));
+            pst.setString(6, cmbStatus.getSelectedItem().toString());
+            pst.setString(7, txtColor.getText());
+            pst.setInt(8, Integer.parseInt(txtMile.getText()));
+            pst.setInt(9, carId);
+            
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Car Updated!");
+            
+            txtColor.setText("");
+            txtMake.setText("");
+            txtMile.setText("");
+            txtModel.setText("");
+            txtPlate.setText("");
+            txtRate.setText("");
+            txtYear.setText("");
+            cmbStatus.setSelectedIndex(0);
+            ComboBoxCarId.setSelectedIndex(0);
+            
+            loadCarIds();
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error updating car: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void txtRateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtRateActionPerformed
@@ -379,33 +392,40 @@ public class VehicleMgt extends javax.swing.JFrame {
         txtRate.setText("");
         txtYear.setText("");
         cmbStatus.setSelectedItem("");
-        txtCarId.requestFocus();
-        txtCarId.setText("");
+        ComboBoxCarId.setSelectedIndex(0);
     }//GEN-LAST:event_btnClearActionPerformed
 
     private void btnDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteActionPerformed
-        // TODO add your handling code here:
-         try (Connection conn = DbConnection.getConnection()) {
-        String sql = "DELETE FROM Cars WHERE car_id=?";
-        PreparedStatement pst = conn.prepareStatement(sql);
-        pst.setInt(1, Integer.parseInt(txtCarId.getText()));
-        pst.executeUpdate();
-        JOptionPane.showMessageDialog(this, "Car Deleted!");
-        txtColor.setText("");
-        txtMake.setText("");
-        txtMile.setText("");
-        txtModel.setText("");
-        txtPlate.setText("");
-        txtRate.setText("");
-        txtYear.setText("");
-        cmbStatus.setSelectedItem("");
-        txtCarId.requestFocus();
-        txtCarId.setText("");
-//        loadCars();
-//        clearFields();
-    } catch (Exception ex) {
-        JOptionPane.showMessageDialog(this, "Error deleting car: " + ex.getMessage());
-    }
+        String selected = ComboBoxCarId.getSelectedItem().toString();
+        if (selected.equals("Select Car")) {
+            JOptionPane.showMessageDialog(this, "Please select a car!");
+            return;
+        }
+        
+        int carId = Integer.parseInt(selected.split(" - ")[0]);
+        
+        try (Connection conn = DbConnection.getConnection()) {
+            String sql = "DELETE FROM Cars WHERE car_id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, carId);
+            pst.executeUpdate();
+            JOptionPane.showMessageDialog(this, "Car Deleted!");
+            
+            txtColor.setText("");
+            txtMake.setText("");
+            txtMile.setText("");
+            txtModel.setText("");
+            txtPlate.setText("");
+            txtRate.setText("");
+            txtYear.setText("");
+            cmbStatus.setSelectedIndex(0);
+            ComboBoxCarId.setSelectedIndex(0);
+            
+            loadCarIds();
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Error deleting car: " + ex.getMessage());
+        }
     }//GEN-LAST:event_btnDeleteActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
@@ -413,6 +433,10 @@ public class VehicleMgt extends javax.swing.JFrame {
         dispose();
         new Dashboard().setVisible(true);
     }//GEN-LAST:event_btnBackActionPerformed
+
+    private void txtModelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtModelActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtModelActionPerformed
 
     /**
      * @param args the command line arguments
@@ -450,6 +474,7 @@ public class VehicleMgt extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JComboBox<String> ComboBoxCarId;
     private javax.swing.JLabel LblCarID;
     private javax.swing.JLabel LblMake;
     private javax.swing.JLabel LblMile;
@@ -468,7 +493,6 @@ public class VehicleMgt extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField txtCarId;
     private javax.swing.JTextField txtColor;
     private javax.swing.JTextField txtMake;
     private javax.swing.JTextField txtMile;
