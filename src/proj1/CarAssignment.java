@@ -29,17 +29,18 @@ public class CarAssignment extends javax.swing.JFrame {
         loadCars();
         loadEmployees();
         calculateAmount();
-
+        loadRentalId();
     }
 
     private void clearFields() {
-        txtRentalId.setText("");
+        CmbBoxRentalId.setSelectedIndex(0);
         CustomerComboBox.setSelectedIndex(0);
         CarComboBox.setSelectedIndex(0);
         dateEndDate.setDate(null);
         dateStartDate.setDate(null);
         EmployeeComboBox.setSelectedIndex(0);
         txtAmount.setText("0.000");
+        CmbBoxRentalId.setSelectedIndex(0);
     }
 
     private void loadCustomers() {
@@ -63,11 +64,37 @@ public class CarAssignment extends javax.swing.JFrame {
         }
     }
 
+    private void loadRentalId() {
+        try (Connection conn = DbConnection.getConnection()) {
+            CmbBoxRentalId.removeAllItems();
+            CmbBoxRentalId.addItem("Select Rental");
+
+            String sql = "SELECT r.rental_id, c.first_name "
+                    + "FROM Rentals r "
+                    + "JOIN Customers c ON r.customer_id = c.customer_id "
+                    + "ORDER BY r.rental_id ASC";
+
+            PreparedStatement pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+
+            while (rs.next()) {
+                int rentalId = rs.getInt("rental_id");
+                String customerName = rs.getString("first_name"); // you can also use last_name if needed
+                CmbBoxRentalId.addItem(rentalId + " - " + customerName);
+            }
+
+            rs.close();
+            pst.close();
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error loading rental IDs: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     private void loadCars() {
         try (Connection conn = DbConnection.getConnection();) {
             CarComboBox.removeAllItems();
             CarComboBox.addItem("Select Car");
-
             String sql = "SELECT car_id, CONCAT(make, ' ', model, ' (', license_plate, ')') as car_info, rental_rate "
                     + "FROM Cars WHERE status = 'Available' ORDER BY make, model";
             PreparedStatement pst = conn.prepareStatement(sql);
@@ -173,8 +200,8 @@ public class CarAssignment extends javax.swing.JFrame {
         dateEndDate = new com.toedter.calendar.JDateChooser();
         btnBack = new javax.swing.JButton();
         LblRenatl_id = new javax.swing.JLabel();
-        txtRentalId = new javax.swing.JTextField();
         btnFind = new javax.swing.JButton();
+        CmbBoxRentalId = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -251,6 +278,8 @@ public class CarAssignment extends javax.swing.JFrame {
             }
         });
 
+        CmbBoxRentalId.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -260,29 +289,6 @@ public class CarAssignment extends javax.swing.JFrame {
                 .addComponent(btnRent)
                 .addGap(1, 1, 1)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(LblEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(LblStartDate)
-                            .addComponent(LblAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 194, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(txtRentalId)
-                            .addComponent(EmployeeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(dateStartDate, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
-                            .addComponent(CarComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(CustomerComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(txtAmount, javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(dateEndDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(51, 51, 51))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                                .addComponent(LblEmployee, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblCustomer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(LblCar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                            .addComponent(LblRenatl_id, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(26, 26, 26)
                         .addComponent(btnUpdate)
@@ -294,7 +300,32 @@ public class CarAssignment extends javax.swing.JFrame {
                         .addComponent(btnFind)
                         .addGap(18, 18, 18)
                         .addComponent(btnBack)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                        .addComponent(LblEmployee, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(LblCustomer, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(LblCar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .addComponent(LblRenatl_id, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(CmbBoxRentalId, javax.swing.GroupLayout.PREFERRED_SIZE, 251, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(LblEndDate, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(LblStartDate)
+                                    .addComponent(LblAmount, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 194, Short.MAX_VALUE)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                    .addComponent(EmployeeComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(dateStartDate, javax.swing.GroupLayout.DEFAULT_SIZE, 251, Short.MAX_VALUE)
+                                    .addComponent(CarComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(CustomerComboBox, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                    .addComponent(txtAmount, javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(dateEndDate, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(51, 51, 51))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -302,7 +333,7 @@ public class CarAssignment extends javax.swing.JFrame {
                 .addGap(25, 25, 25)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(LblRenatl_id, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtRentalId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(CmbBoxRentalId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGap(153, 153, 153)
@@ -430,27 +461,87 @@ public class CarAssignment extends javax.swing.JFrame {
         new Dashboard().setVisible(true);
     }//GEN-LAST:event_btnBackActionPerformed
 
-    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
-        // TODO add your handling code here:
+    private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
+        String rentalIdStr = CmbBoxRentalId.getSelectedItem().toString();
+        if (CmbBoxRentalId.getSelectedIndex() <= 0 || rentalIdStr.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Please select a Rental ID!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try (Connection conn = DbConnection.getConnection()) {
-            // Get rental id
-            int rentalId = Integer.parseInt(txtRentalId.getText());
+            int rentalId = Integer.parseInt(rentalIdStr.split("-")[0].trim());
 
-            // Get selected values
-            String customerStr = CustomerComboBox.getSelectedItem().toString();
-            int customerId = Integer.parseInt(customerStr.split(" - ")[0]);
+            String sql = "SELECT r.customer_id, r.car_id, r.employee_id, r.start_date, r.end_date, r.total_amount, "
+                    + "c.first_name, c.last_name, car.make, car.model, car.license_plate, "
+                    + "e.first_name AS emp_first, e.last_name AS emp_last "
+                    + "FROM Rentals r "
+                    + "JOIN Customers c ON r.customer_id = c.customer_id "
+                    + "JOIN Cars car ON r.car_id = car.car_id "
+                    + "JOIN employees_login e ON r.employee_id = e.employee_id "
+                    + "WHERE r.rental_id=?";
+            PreparedStatement pst = conn.prepareStatement(sql);
+            pst.setInt(1, rentalId);
+            ResultSet rs = pst.executeQuery();
 
-            String carStr = CarComboBox.getSelectedItem().toString();
-            int carId = Integer.parseInt(carStr.split(" - ")[0]);
+            if (rs.next()) {
+                // Set combo boxes properly
+                CustomerComboBox.setSelectedItem(rs.getInt("customer_id") + " - "
+                        + rs.getString("first_name") + " "
+                        + rs.getString("last_name"));
+                // Car
+                for (int i = 0; i < CarComboBox.getItemCount(); i++) {
+                    if (CarComboBox.getItemAt(i).startsWith(rs.getInt("car_id") + " -")) {
+                        CarComboBox.setSelectedIndex(i);
+                        break;
+                    }
+                }
+                // Employee
+                for (int i = 0; i < EmployeeComboBox.getItemCount(); i++) {
+                    if (EmployeeComboBox.getItemAt(i).startsWith(rs.getInt("employee_id") + " -")) {
+                        EmployeeComboBox.setSelectedIndex(i);
+                        break;
+                    }
+                }
 
-            String employeeStr = EmployeeComboBox.getSelectedItem().toString();
-            int employeeId = Integer.parseInt(employeeStr.split(" - ")[0]);
+                // Dates
+                dateStartDate.setDate(rs.getDate("start_date"));
+                dateEndDate.setDate(rs.getDate("end_date"));
 
+                // Amount
+                txtAmount.setText(String.format("%.2f", rs.getDouble("total_amount")));
+            } else {
+                JOptionPane.showMessageDialog(this, "Rental ID not found!", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+            rs.close();
+            pst.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error finding rental: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnFindActionPerformed
+
+    private void CmbBoxRentalIdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_CmbBoxRentalIdActionPerformed
+        // When a rental ID is selected from the combo box, populate the text field
+        if (CmbBoxRentalId.getSelectedIndex() > 0) {
+            CmbBoxRentalId.getSelectedItem().toString();
+        }
+    }//GEN-LAST:event_CmbBoxRentalIdActionPerformed
+
+    private void btnUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateActionPerformed
+        if (CmbBoxRentalId.getSelectedIndex() <= 0) {
+            JOptionPane.showMessageDialog(this, "Please select a Rental ID!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try (Connection conn = DbConnection.getConnection()) {
+            int rentalId = Integer.parseInt(CmbBoxRentalId.getSelectedItem().toString().split("-")[0].trim());
+            int customerId = Integer.parseInt(CustomerComboBox.getSelectedItem().toString().split(" - ")[0]);
+            int carId = Integer.parseInt(CarComboBox.getSelectedItem().toString().split(" - ")[0]);
+            int employeeId = Integer.parseInt(EmployeeComboBox.getSelectedItem().toString().split(" - ")[0]);
             Date startDate = new Date(dateStartDate.getDate().getTime());
             Date endDate = new Date(dateEndDate.getDate().getTime());
             double amount = Double.parseDouble(txtAmount.getText());
 
-            // Update query
             String sql = "UPDATE Rentals SET customer_id=?, car_id=?, employee_id=?, start_date=?, end_date=?, total_amount=? "
                     + "WHERE rental_id=?";
             PreparedStatement pst = conn.prepareStatement(sql);
@@ -469,26 +560,29 @@ public class CarAssignment extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Rental updated successfully!");
                 clearFields();
                 loadCars();
+                loadRentalId();
             } else {
                 JOptionPane.showMessageDialog(this, "Rental ID not found!", "Error", JOptionPane.ERROR_MESSAGE);
             }
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Error updating rental: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
-
     }//GEN-LAST:event_btnUpdateActionPerformed
 
     private void btnDelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDelActionPerformed
-        // TODO add your handling code here:
-        try (Connection conn = DbConnection.getConnection()) {
-            int rentalId = Integer.parseInt(txtRentalId.getText());
+        if (CmbBoxRentalId.getSelectedIndex() <= 0) {
+            JOptionPane.showMessageDialog(this, "Please select a Rental ID!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-            // First, free the car linked to this rental
+        try (Connection conn = DbConnection.getConnection()) {
+            int rentalId = Integer.parseInt(CmbBoxRentalId.getSelectedItem().toString().split("-")[0].trim());
+
+            // Get linked car
             String getCarSql = "SELECT car_id FROM Rentals WHERE rental_id=?";
             PreparedStatement getCarPst = conn.prepareStatement(getCarSql);
             getCarPst.setInt(1, rentalId);
             ResultSet rs = getCarPst.executeQuery();
-
             int carId = -1;
             if (rs.next()) {
                 carId = rs.getInt("car_id");
@@ -504,7 +598,7 @@ public class CarAssignment extends javax.swing.JFrame {
             pst.close();
 
             if (rows > 0) {
-                // Update car back to 'Available'
+                // Update car back to available
                 if (carId != -1) {
                     String updateCarSql = "UPDATE Cars SET status='Available' WHERE car_id=?";
                     PreparedStatement updatePst = conn.prepareStatement(updateCarSql);
@@ -516,6 +610,7 @@ public class CarAssignment extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this, "Rental deleted successfully!");
                 clearFields();
                 loadCars();
+                loadRentalId();
             } else {
                 JOptionPane.showMessageDialog(this, "Rental ID not found!", "Error", JOptionPane.ERROR_MESSAGE);
             }
@@ -523,69 +618,6 @@ public class CarAssignment extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error deleting rental: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnDelActionPerformed
-
-    private void btnFindActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFindActionPerformed
-        // TODO add your handling code here:
-        try (Connection conn = DbConnection.getConnection()) {
-            int rentalId = Integer.parseInt(txtRentalId.getText());
-
-            String sql = "SELECT r.customer_id, r.car_id, r.employee_id, r.start_date, r.end_date, r.total_amount, "
-                    + "c.first_name, c.last_name, car.make, car.model, car.license_plate, e.first_name AS emp_first, e.last_name AS emp_last "
-                    + "FROM Rentals r "
-                    + "JOIN Customers c ON r.customer_id = c.customer_id "
-                    + "JOIN Cars car ON r.car_id = car.car_id "
-                    + "JOIN employees_login e ON r.employee_id = e.employee_id "
-                    + "WHERE r.rental_id=?";
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setInt(1, rentalId);
-            ResultSet rs = pst.executeQuery();
-
-            if (rs.next()) {
-                // Customer
-                int customerId = rs.getInt("customer_id");
-                String custName = rs.getString("first_name") + " " + rs.getString("last_name");
-                CustomerComboBox.setSelectedItem(customerId + " - " + custName);
-
-                // Car
-                int carId = rs.getInt("car_id");
-                String carInfo = rs.getString("make") + " " + rs.getString("model")
-                        + " (" + rs.getString("license_plate") + ")";
-                // We must match with how loadCars() adds items (id - car_info - UgxRate/day)
-                for (int i = 0; i < CarComboBox.getItemCount(); i++) {
-                    if (CarComboBox.getItemAt(i).startsWith(carId + " -")) {
-                        CarComboBox.setSelectedIndex(i);
-                        break;
-                    }
-                }
-
-                // Employee
-                int empId = rs.getInt("employee_id");
-                String empName = rs.getString("emp_first") + " " + rs.getString("emp_last");
-                for (int i = 0; i < EmployeeComboBox.getItemCount(); i++) {
-                    if (EmployeeComboBox.getItemAt(i).startsWith(empId + " -")) {
-                        EmployeeComboBox.setSelectedIndex(i);
-                        break;
-                    }
-                }
-
-                // Dates
-                dateStartDate.setDate(rs.getDate("start_date"));
-                dateEndDate.setDate(rs.getDate("end_date"));
-
-                // Amount
-                txtAmount.setText(String.format("%.2f", rs.getDouble("total_amount")));
-
-            } else {
-                JOptionPane.showMessageDialog(this, "Rental ID not found!", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-
-            rs.close();
-            pst.close();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Error finding rental: " + e.getMessage(),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }//GEN-LAST:event_btnFindActionPerformed
 
     /**
      * @param args the command line arguments
@@ -624,6 +656,7 @@ public class CarAssignment extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JComboBox<String> CarComboBox;
+    private javax.swing.JComboBox<String> CmbBoxRentalId;
     private javax.swing.JComboBox<String> CustomerComboBox;
     private javax.swing.JComboBox<String> EmployeeComboBox;
     private javax.swing.JLabel LblAmount;
@@ -642,6 +675,5 @@ public class CarAssignment extends javax.swing.JFrame {
     private com.toedter.calendar.JDateChooser dateEndDate;
     private com.toedter.calendar.JDateChooser dateStartDate;
     private javax.swing.JTextField txtAmount;
-    private javax.swing.JTextField txtRentalId;
     // End of variables declaration//GEN-END:variables
 }
